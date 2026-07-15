@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dividend Growth Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0f1620;
+    --panel:#161f2a;
+    --panel-line:#2a3542;
+    --paper:#e9e4d6;
+    --paper-dim:#a7a08d;
+    --brass:#c9a227;
+    --brass-dim:#8a712a;
+    --brick:#b3492f;
+    --brick-dim:#7a3323;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'IBM Plex Mono',monospace;
+    line-height:1.5;
+  }
+  .masthead{
+    border-bottom:1px solid var(--panel-line);
+    padding:2.25rem 1.5rem 1.5rem;
+    text-align:center;
+  }
+  .masthead h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:clamp(1.8rem, 4vw, 2.6rem);
+    letter-spacing:0.02em;
+    margin:0 0 0.4rem;
+  }
+  .masthead .dateline{
+    color:var(--paper-dim);
+    font-size:0.8rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+  }
+  .masthead .note{
+    max-width:640px;
+    margin:0.9rem auto 0;
+    font-size:0.82rem;
+    color:var(--paper-dim);
+  }
+  .wrap{
+    max-width:960px;
+    margin:0 auto;
+    padding:1.5rem 1rem 4rem;
+  }
+  .legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.6rem 1.1rem;
+    justify-content:center;
+    padding:1rem 0 1.8rem;
+    font-size:0.72rem;
+    color:var(--paper-dim);
+    border-bottom:1px dashed var(--panel-line);
+    margin-bottom:1.8rem;
+  }
+  .legend span b{color:var(--paper);}
+  .region-heading{
+    font-family:'Fraunces',serif;
+    font-size:1.1rem;
+    font-weight:600;
+    color:var(--brass);
+    margin:2.2rem 0 0.8rem;
+    letter-spacing:0.03em;
+    border-bottom:1px solid var(--panel-line);
+    padding-bottom:0.4rem;
+  }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--panel-line);
+    border-radius:4px;
+    padding:1.1rem 1.2rem;
+    margin-bottom:0.9rem;
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:0.6rem 1rem;
+    align-items:start;
+  }
+  .card .name{
+    font-family:'Fraunces',serif;
+    font-size:1.05rem;
+    font-weight:600;
+    color:var(--paper);
+  }
+  .card .ticker{
+    color:var(--paper-dim);
+    font-size:0.78rem;
+    margin-left:0.5rem;
+  }
+  .stamp{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:0.78rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    border:2px solid currentColor;
+    border-radius:3px;
+    padding:0.25rem 0.6rem;
+    transform:rotate(-4deg);
+    white-space:nowrap;
+    justify-self:end;
+  }
+  .stamp.pass{color:var(--brass);}
+  .stamp.fail{color:var(--brick);}
+  .stamp.incomplete{color:var(--paper-dim);border-style:dashed;}
+  .criteria-grid{
+    grid-column:1 / -1;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:0.4rem 0.8rem;
+    font-size:0.76rem;
+    margin-top:0.3rem;
+  }
+  .crit{
+    display:flex;
+    justify-content:space-between;
+    padding:0.25rem 0;
+    border-bottom:1px dotted var(--panel-line);
+  }
+  .crit .mark{font-weight:600;}
+  .mark.yes{color:var(--brass);}
+  .mark.no{color:var(--brick);}
+  .mark.na{color:var(--paper-dim);}
+  .figures{
+    grid-column:1 / -1;
+    font-size:0.74rem;
+    color:var(--paper-dim);
+    margin-top:0.2rem;
+  }
+  .figures b{color:var(--paper);}
+  .gaps{
+    grid-column:1 / -1;
+    font-size:0.72rem;
+    color:var(--brick-dim);
+  }
+  .empty-state{
+    text-align:center;
+    padding:3rem 1rem;
+    color:var(--paper-dim);
+  }
+  .empty-state code{
+    background:var(--panel);
+    padding:0.15rem 0.4rem;
+    border-radius:3px;
+  }
+  footer{
+    text-align:center;
+    color:var(--paper-dim);
+    font-size:0.7rem;
+    padding:2rem 1rem;
+    border-top:1px solid var(--panel-line);
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <h1>Dividend Growth Ledger</h1>
+  <div class="dateline" id="dateline">Loading latest scan…</div>
+  <p class="note">Automated daily screen — dividend consistency, earnings &amp; revenue growth, dividend acceleration, payout ratio, and free cash flow yield. Momentum/technical filters intentionally excluded.</p>
+</div>
+
+<div class="wrap">
+  <div class="legend">
+    <span><b>DIV4</b> — dividend grown/held 4yrs</span>
+    <span><b>EPS</b> — EPS growth positive</span>
+    <span><b>REV</b> — revenue growth positive</span>
+    <span><b>ACC</b> — dividend growth accelerating</span>
+    <span><b>PAY</b> — payout ratio &lt; 60%</span>
+    <span><b>FCF</b> — FCF yield &gt; 3%</span>
+  </div>
+
+  <div id="content">
+    <div class="empty-state">Loading…</div>
+  </div>
+</div>
+
+<footer>
+  Data via Financial Modeling Prep · scan runs daily via GitHub Actions · this page reads <code>data/results.json</code> directly, no server required.
+</footer>
+
+<script>
+const CRIT_LABELS = {
+  dividend_streak_4yr: "DIV4",
+  eps_growth_positive: "EPS",
+  revenue_growth_positive: "REV",
+  dividend_acceleration: "ACC",
+  payout_ratio_under_60: "PAY",
+  fcf_yield_above_3: "FCF"
+};
+
+function markHTML(val){
+  if(val === true) return '<span class="mark yes">PASS</span>';
+  if(val === false) return '<span class="mark no">FAIL</span>';
+  return '<span class="mark na">n/a</span>';
+}
+
+function stampHTML(res){
+  if(res.overall_pass) return '<span class="stamp pass">Pass</span>';
+  if(res.criteria_evaluated_count < 4) return '<span class="stamp incomplete">Incomplete data</span>';
+  return '<span class="stamp fail">Fail</span>';
+}
+
+function renderResults(data){
+  const dateline = document.getElementById('dateline');
+  dateline.textContent = "Last scanned " + new Date(data.generated_at).toUTCString();
+
+  const byRegion = {};
+  data.results.forEach(r => {
+    const region = r.region || "Other";
+    if(!byRegion[region]) byRegion[region] = [];
+    byRegion[region].push(r);
+  });
+
+  let html = "";
+  Object.keys(byRegion).sort().forEach(region => {
+    html += `<div class="region-heading">${region}</div>`;
+    byRegion[region].forEach(r => {
+      html += `<div class="card">
+        <div><span class="name">${r.name}</span><span class="ticker">${r.ticker}</span></div>
+        ${stampHTML(r)}
+        <div class="criteria-grid">
+          ${Object.keys(CRIT_LABELS).map(key => `
+            <div class="crit"><span>${CRIT_LABELS[key]}</span>${markHTML(r.criteria[key])}</div>
+          `).join("")}
+        </div>
+        <div class="figures">
+          ${r.eps_growth_pct !== undefined && r.eps_growth_pct !== null ? `EPS growth: <b>${r.eps_growth_pct}%</b> &nbsp;` : ""}
+          ${r.revenue_growth_pct !== undefined && r.revenue_growth_pct !== null ? `Revenue growth: <b>${r.revenue_growth_pct}%</b> &nbsp;` : ""}
+          ${r.payout_ratio_pct !== undefined && r.payout_ratio_pct !== null ? `Payout ratio: <b>${r.payout_ratio_pct}%</b> &nbsp;` : ""}
+          ${r.fcf_yield_pct !== undefined && r.fcf_yield_pct !== null ? `FCF yield: <b>${r.fcf_yield_pct}%</b>` : ""}
+        </div>
+        ${r.data_gaps && r.data_gaps.length ? `<div class="gaps">No data available for: ${r.data_gaps.join(", ")}</div>` : ""}
+      </div>`;
+    });
+  });
+
+  document.getElementById('content').innerHTML = html;
+}
+
+fetch('data/results.json?_=' + Date.now())
+  .then(resp => { if(!resp.ok) throw new Error('not found'); return resp.json(); })
+  .then(renderResults)
+  .catch(() => {
+    document.getElementById('content').innerHTML =
+      `<div class="empty-state">No scan data yet.<br><br>
+       Once the GitHub Actions workflow runs for the first time (or you trigger it manually
+       from the Actions tab), results will appear here automatically. <br><br>
+       Expected file: <code>data/results.json</code></div>`;
+    document.getElementById('dateline').textContent = "No scan has run yet";
+  });
+</script>
+
+</body>
+</html>
